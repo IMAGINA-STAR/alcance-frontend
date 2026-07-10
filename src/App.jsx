@@ -4,6 +4,8 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import CatalogPage from './pages/CatalogPage';
 import DashboardPage from './pages/DashboardPage';
+import MyRequestsPage from './pages/MyRequestsPage';
+import PaymentResultPage from './pages/PaymentResultPage';
 
 function ProtectedRoute({ children, allowedRole }) {
   const { user, loading } = useAuth();
@@ -43,6 +45,30 @@ export default function App() {
             element={
               <ProtectedRoute allowedRole="influencer">
                 <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/mis-solicitudes"
+            element={
+              <ProtectedRoute allowedRole="anunciante">
+                <MyRequestsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pago-exitoso"
+            element={
+              <ProtectedRoute allowedRole="anunciante">
+                <PaymentResultPage outcome="success" />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pago-cancelado"
+            element={
+              <ProtectedRoute allowedRole="anunciante">
+                <PaymentResultPage outcome="cancelled" />
               </ProtectedRoute>
             }
           />

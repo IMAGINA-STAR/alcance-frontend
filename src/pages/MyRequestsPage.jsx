@@ -1,0 +1,84 @@
+import { useState, useEffect, useCallback } from 'react';
+import Topbar from '../components/Topbar';
+import { Toast, useToast } from '../components/Toast';
+import { api } from '../api';
+import { useAuth } from '../context/AuthContext';
+
+function statusBadge(status) {
+  if (status === 'rejected') return <span className="badge-rejected">Rechazada</span>;
+  return <span className="badge-pending">Pendiente</span>;
+}
+
+export default function MyRequestsPage() {
+  const { token } = useAuth();
+  const { toast, showToast } = useToast();
+
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [payingId, setPayingId] = useState(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setLoadError('');
+    try {
+      const data = await api.getSentRequests(token);
+      setRequests(data);
+    } catch (err) {
+      setLoadError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
+
+  useEffect(() => { load(); }, [load]);
+
+  async function payNow(requestId) {
+    setPayingId(requestId);
+    try {
+      const { checkout_url } = await api.createCheckout(requestId, token);
+      window.location.href = checkout_url;
+    } catch (err) {
+      showToast(err.message, true);
+      setPayingId(null);
+    }
+  }
+
+  return (
+    <div>
+      <Topbar />
+      <div className="container">
+        <div className="view-header">
+          <h1>Tus solicitudes</h1>
+          <p>Sigue el estado de las propuestas que has enviado y paga las que ya fueron aceptadas.</p>
+        </div>
+
+        <div className="panel" style={{ maxWidth: 720 }}>
+          {loading && <div className="loading-state">Cargando…</div>}
+          {!loading && loadError && <div className="empty-state">{loadError}</div>}
+          {!loading && !loadError && requests.length === 0 && (
+            <div className="empty-state">Aún no has enviado ninguna solicitud. Ve al catálogo para encontrar un espacio.</div>
+          )}
+          {!loading && !loadError && requests.map((r) => (
+            <div className="request-item" key={r.id}>
+              <div>
+                <div className="who">{r.influencer_name} <span className="mono" style={{ color: 'var(--text-muted)', fontWeight: 400 }}>· Q{Number(r.offered_budget)}</span></div>
+                <div className="msg">{r.content_type}</div>
+              </div>
+              {r.status === 'accepted' && r.payment_status === 'paid' && (
+                <span className="badge-accepted">Pagado</span>
+              )}
+              {r.status === 'accepted' && r.payment_status !== 'paid' && (
+                <button className="btn btn-primary" onClick={() => payNow(r.id)} disabled={payingId === r.id}>
+                  {payingId === r.id ? 'Abriendo pago…' : 'Pagar ahora'}
+                </button>
+              )}
+              {r.status !== 'accepted' && statusBadge(r.status)}
+            </div>
+          ))}
+        </div>
+      </div>
+      <Toast toast={toast} />
+    </div>
+  );
+}

@@ -38,4 +38,9 @@ export const api = {
   getSentRequests: (token) => request('/requests/sent', { token }),
   respondToRequest: (id, status, token) =>
     request(`/requests/${id}/respond`, { method: 'PATCH', body: { status }, token }),
+
+  createCheckout: (requestId, token) =>
+    request(`/requests/${requestId}/checkout`, { method: 'POST', token }),
+  getPaymentStatus: (requestId, token) =>
+    request(`/requests/${requestId}/payment-status`, { token }),
 };
