@@ -43,4 +43,8 @@ export const api = {
     request(`/requests/${requestId}/checkout`, { method: 'POST', token }),
   getPaymentStatus: (requestId, token) =>
     request(`/requests/${requestId}/payment-status`, { token }),
+
+  getMessages: (requestId, token) => request(`/requests/${requestId}/messages`, { token }),
+  sendMessage: (requestId, body, token) =>
+    request(`/requests/${requestId}/messages`, { method: 'POST', body: { body }, token }),
 };
