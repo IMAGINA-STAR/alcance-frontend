@@ -1,13 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
 import Topbar from '../components/Topbar';
 import { Toast, useToast } from '../components/Toast';
+import ChatModal from '../components/ChatModal';
 import { api } from '../api';
 import { useAuth } from '../context/AuthContext';
 
 const CONTENT_TYPES = ['Historia de Instagram (24h)', 'Post en feed', 'Reel', 'Combo (Historia + Post)'];
 
-function statusBadge(status) {
-  if (status === 'accepted') return <span className="badge-accepted">Aceptada</span>;
+function statusBadge(status, paymentStatus) {
+  if (status === 'accepted') {
+    return paymentStatus === 'paid'
+      ? <span className="badge-accepted">Pagada</span>
+      : <span className="badge-accepted">Aceptada</span>;
+  }
   if (status === 'rejected') return <span className="badge-rejected">Rechazada</span>;
   return null;
 }
@@ -24,6 +29,7 @@ export default function DashboardPage() {
   const [requests, setRequests] = useState([]);
   const [loadingReq, setLoadingReq] = useState(true);
   const [reqError, setReqError] = useState('');
+  const [chatRequest, setChatRequest] = useState(null);
 
   const loadRequests = useCallback(async () => {
     setLoadingReq(true);
@@ -115,17 +121,31 @@ export default function DashboardPage() {
                   <div className="who">{r.brand_name} <span className="mono" style={{ color: 'var(--text-muted)', fontWeight: 400 }}>· Q{Number(r.offered_budget)}</span></div>
                   <div className="msg">{r.message || 'Sin mensaje adicional.'}</div>
                 </div>
-                {r.status === 'pending' ? (
+                {r.status === 'pending' && (
                   <div className="request-actions">
                     <button className="icon-btn accept" title="Aceptar" onClick={() => respond(r.id, 'accepted')}>✓</button>
                     <button className="icon-btn reject" title="Rechazar" onClick={() => respond(r.id, 'rejected')}>✕</button>
                   </div>
-                ) : statusBadge(r.status)}
+                )}
+                {r.status === 'accepted' && (
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <button className="btn btn-ghost" onClick={() => setChatRequest(r)}>Ver chat</button>
+                    {statusBadge(r.status, r.payment_status)}
+                  </div>
+                )}
+                {r.status !== 'pending' && r.status !== 'accepted' && statusBadge(r.status, r.payment_status)}
               </div>
             ))}
           </div>
         </div>
       </div>
+      {chatRequest && (
+        <ChatModal
+          requestId={chatRequest.id}
+          title={chatRequest.brand_name}
+          onClose={() => setChatRequest(null)}
+        />
+      )}
       <Toast toast={toast} />
     </div>
   );
