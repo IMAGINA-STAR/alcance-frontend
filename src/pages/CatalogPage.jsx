@@ -40,6 +40,8 @@ export default function CatalogPage() {
   const [minFollowers, setMinFollowers] = useState(0);
   const [maxPrice, setMaxPrice] = useState(3000);
 
+  const [brokenPhotos, setBrokenPhotos] = useState(() => new Set());
+
   const [modalSpace, setModalSpace] = useState(null);
   const [reqMsg, setReqMsg] = useState('');
   const [reqBudget, setReqBudget] = useState('');
@@ -137,9 +139,18 @@ export default function CatalogPage() {
                 {filtered.map((s) => (
                   <div className="card" key={s.id}>
                     <div className="card-top">
-                      <div className="avatar" style={{ background: colorFor(s.influencer_id) }}>
-                        {initials(s.influencer_name)}
-                      </div>
+                      {s.photo_url && !brokenPhotos.has(s.influencer_id) ? (
+                        <img
+                          className="avatar avatar-img"
+                          src={s.photo_url}
+                          alt={s.influencer_name}
+                          onError={() => setBrokenPhotos((prev) => new Set(prev).add(s.influencer_id))}
+                        />
+                      ) : (
+                        <div className="avatar" style={{ background: colorFor(s.influencer_id) }}>
+                          {initials(s.influencer_name)}
+                        </div>
+                      )}
                       <div>
                         <div className="card-name">{s.influencer_name}</div>
                         <span className="card-tag">{s.category}</span>

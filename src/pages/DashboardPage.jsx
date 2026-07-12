@@ -26,6 +26,9 @@ export default function DashboardPage() {
   const [description, setDescription] = useState('');
   const [publishing, setPublishing] = useState(false);
 
+  const [photoUrl, setPhotoUrl] = useState('');
+  const [savingPhoto, setSavingPhoto] = useState(false);
+
   const [requests, setRequests] = useState([]);
   const [loadingReq, setLoadingReq] = useState(true);
   const [reqError, setReqError] = useState('');
@@ -64,6 +67,18 @@ export default function DashboardPage() {
     }
   }
 
+  async function savePhoto() {
+    setSavingPhoto(true);
+    try {
+      await api.updateInfluencerProfile({ photo_url: photoUrl.trim() || null }, token);
+      showToast('Foto de perfil actualizada');
+    } catch (err) {
+      showToast(err.message, true);
+    } finally {
+      setSavingPhoto(false);
+    }
+  }
+
   async function respond(id, status) {
     try {
       await api.respondToRequest(id, status, token);
@@ -84,27 +99,42 @@ export default function DashboardPage() {
         </div>
 
         <div className="dash-grid">
-          <div className="panel">
-            <h3>Publicar espacio</h3>
-            <p className="sub">Así te van a encontrar los anunciantes.</p>
-            <div className="field">
-              <label>Tipo de contenido</label>
-              <select value={contentType} onChange={(e) => setContentType(e.target.value)}>
-                {CONTENT_TYPES.map((t) => <option key={t}>{t}</option>)}
-              </select>
+          <div className="panel-stack">
+            <div className="panel">
+              <h3>Foto de perfil</h3>
+              <p className="sub">Pega el enlace a una imagen tuya (por ejemplo, de Google Drive o Instagram).</p>
+              <div className="field">
+                <label>Enlace a tu foto de perfil</label>
+                <input type="url" value={photoUrl} onChange={(e) => setPhotoUrl(e.target.value)}
+                  placeholder="https://..." />
+              </div>
+              <button className="btn btn-primary btn-block" onClick={savePhoto} disabled={savingPhoto}>
+                {savingPhoto ? 'Guardando…' : 'Guardar'}
+              </button>
             </div>
-            <div className="field">
-              <label>Precio (Q)</label>
-              <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Ej. 350" />
+
+            <div className="panel">
+              <h3>Publicar espacio</h3>
+              <p className="sub">Así te van a encontrar los anunciantes.</p>
+              <div className="field">
+                <label>Tipo de contenido</label>
+                <select value={contentType} onChange={(e) => setContentType(e.target.value)}>
+                  {CONTENT_TYPES.map((t) => <option key={t}>{t}</option>)}
+                </select>
+              </div>
+              <div className="field">
+                <label>Precio (Q)</label>
+                <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Ej. 350" />
+              </div>
+              <div className="field">
+                <label>Descripción breve</label>
+                <textarea value={description} onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Ej. Contenido de moda y lifestyle, audiencia 18-30 años en Guatemala." />
+              </div>
+              <button className="btn btn-primary btn-block" onClick={publishSpace} disabled={publishing}>
+                {publishing ? 'Publicando…' : 'Publicar espacio'}
+              </button>
             </div>
-            <div className="field">
-              <label>Descripción breve</label>
-              <textarea value={description} onChange={(e) => setDescription(e.target.value)}
-                placeholder="Ej. Contenido de moda y lifestyle, audiencia 18-30 años en Guatemala." />
-            </div>
-            <button className="btn btn-primary btn-block" onClick={publishSpace} disabled={publishing}>
-              {publishing ? 'Publicando…' : 'Publicar espacio'}
-            </button>
           </div>
 
           <div className="panel">
