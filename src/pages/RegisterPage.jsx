@@ -10,6 +10,7 @@ export default function RegisterPage() {
   const [role, setRole] = useState('anunciante');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -97,7 +98,22 @@ export default function RegisterPage() {
             </div>
           )}
 
-          <button className="btn btn-primary btn-block" disabled={loading}>
+          <label className="checkbox-field">
+            <input
+              type="checkbox"
+              checked={acceptedTerms}
+              onChange={(e) => setAcceptedTerms(e.target.checked)}
+              required
+            />
+            <span>
+              He leído y acepto los{' '}
+              <a href="/terminos" target="_blank" rel="noopener noreferrer">Términos y Condiciones</a>
+              {' '}y el{' '}
+              <a href="/privacidad" target="_blank" rel="noopener noreferrer">Aviso de Privacidad</a>
+            </span>
+          </label>
+
+          <button className="btn btn-primary btn-block" disabled={loading || !acceptedTerms}>
             {loading ? 'Creando cuenta…' : 'Crear cuenta'}
           </button>
         </form>

@@ -297,3 +297,34 @@ table.data-table tr:last-child td { border-bottom: none; }
   flex: 1; resize: none; border: 1px solid var(--line); border-radius: 9px;
   padding: 9px 12px; font-family: 'Inter', sans-serif; font-size: 13.5px; min-height: 40px; max-height: 90px;
 }
+
+/* ---------- FOOTER ---------- */
+.footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 32px; margin-top: 40px; border-top: 1px solid var(--line);
+  color: var(--text-muted); font-size: 13px;
+}
+.footer-links { display: flex; gap: 18px; }
+.footer-links a { text-decoration: none; color: var(--text-muted); }
+.footer-links a:hover { color: var(--text); text-decoration: underline; }
+
+/* ---------- LEGAL PAGES ---------- */
+.legal-page { max-width: 760px; padding-top: 32px; padding-bottom: 60px; line-height: 1.6; }
+.legal-page h1 { font-size: 26px; color: var(--teal-900); margin-bottom: 4px; }
+.legal-page h2 { font-size: 18px; color: var(--teal-900); margin-top: 28px; margin-bottom: 8px; }
+.legal-page p { font-size: 14.5px; color: var(--text); margin: 10px 0; }
+.legal-page ul { margin: 10px 0; padding-left: 22px; }
+.legal-page li { font-size: 14.5px; margin-bottom: 6px; }
+.legal-page hr { border: none; border-top: 1px solid var(--line); margin: 20px 0; }
+.legal-page .legal-updated { color: var(--text-muted); font-size: 13px; }
+.legal-page .legal-disclaimer { color: var(--text-muted); font-size: 12.5px; font-style: italic; }
+
+/* ---------- CHECKBOX FIELD ---------- */
+.checkbox-field {
+  display: flex; align-items: flex-start; gap: 8px; margin: 16px 0;
+  font-size: 13px; color: var(--text-muted); line-height: 1.45;
+}
+.checkbox-field input[type=checkbox] {
+  accent-color: var(--coral); width: 15px; height: 15px; margin-top: 2px; flex-shrink: 0;
+}
+.checkbox-field a { color: var(--teal-700); font-weight: 600; text-decoration: underline; }

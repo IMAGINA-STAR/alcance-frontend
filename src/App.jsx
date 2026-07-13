@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import Footer from './components/Footer';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import CatalogPage from './pages/CatalogPage';
@@ -7,6 +8,8 @@ import DashboardPage from './pages/DashboardPage';
 import MyRequestsPage from './pages/MyRequestsPage';
 import PaymentResultPage from './pages/PaymentResultPage';
 import AdminPayoutsPage from './pages/AdminPayoutsPage';
+import TermsPage from './pages/TermsPage';
+import PrivacyPage from './pages/PrivacyPage';
 
 function homePathForRole(role) {
   if (role === 'influencer') return '/dashboard';
@@ -39,6 +42,8 @@ export default function App() {
           <Route path="/" element={<HomeRedirect />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/registro" element={<RegisterPage />} />
+          <Route path="/terminos" element={<TermsPage />} />
+          <Route path="/privacidad" element={<PrivacyPage />} />
           <Route
             path="/catalogo"
             element={
@@ -88,6 +93,7 @@ export default function App() {
             }
           />
         </Routes>
+        <Footer />
       </BrowserRouter>
     </AuthProvider>
   );
