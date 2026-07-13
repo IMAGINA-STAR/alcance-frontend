@@ -22,7 +22,12 @@ export default function Topbar() {
               <Link to="/mis-solicitudes" style={{ fontSize: 13.5, color: 'var(--text-muted)' }}>Mis solicitudes</Link>
             </>
           )}
-          <span className="role-pill">{user.role === 'influencer' ? 'Influencer' : 'Anunciante'}</span>
+          {user.role === 'admin' && (
+            <Link to="/admin/payouts" style={{ fontSize: 13.5, color: 'var(--text-muted)' }}>Pagos pendientes</Link>
+          )}
+          <span className="role-pill">
+            {user.role === 'influencer' ? 'Influencer' : user.role === 'admin' ? 'Admin' : 'Anunciante'}
+          </span>
           <span style={{ fontSize: 13.5, color: 'var(--text-muted)' }}>{user.name}</span>
           <button className="btn btn-ghost" onClick={logout}>Cerrar sesión</button>
         </div>

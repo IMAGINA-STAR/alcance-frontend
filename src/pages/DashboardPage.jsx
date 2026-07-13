@@ -21,6 +21,12 @@ function statusBadge(status, paymentStatus) {
   return null;
 }
 
+function payoutBadge(payoutStatus) {
+  return payoutStatus === 'pagado'
+    ? <span className="badge-accepted">Pagado</span>
+    : <span className="badge-pending">Pendiente</span>;
+}
+
 export default function DashboardPage() {
   const { token } = useAuth();
   const { toast, showToast } = useToast();
@@ -33,6 +39,14 @@ export default function DashboardPage() {
   const [photoUrl, setPhotoUrl] = useState('');
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const photoInputRef = useRef(null);
+
+  const [bankName, setBankName] = useState('');
+  const [bankAccountNumber, setBankAccountNumber] = useState('');
+  const [savingBank, setSavingBank] = useState(false);
+
+  const [earnings, setEarnings] = useState(null);
+  const [loadingEarnings, setLoadingEarnings] = useState(true);
+  const [earningsError, setEarningsError] = useState('');
 
   const [requests, setRequests] = useState([]);
   const [loadingReq, setLoadingReq] = useState(true);
@@ -57,9 +71,40 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!token) return;
     api.getInfluencerProfile(token)
-      .then((profile) => setPhotoUrl(profile.photo_url || ''))
+      .then((profile) => {
+        setPhotoUrl(profile.photo_url || '');
+        setBankName(profile.bank_name || '');
+        setBankAccountNumber(profile.bank_account_number || '');
+      })
       .catch(() => {});
   }, [token]);
+
+  const loadEarnings = useCallback(async () => {
+    setLoadingEarnings(true);
+    setEarningsError('');
+    try {
+      const data = await api.getEarnings(token);
+      setEarnings(data);
+    } catch (err) {
+      setEarningsError(err.message);
+    } finally {
+      setLoadingEarnings(false);
+    }
+  }, [token]);
+
+  useEffect(() => { loadEarnings(); }, [loadEarnings]);
+
+  async function saveBankInfo() {
+    setSavingBank(true);
+    try {
+      await api.updateBankInfo({ bank_name: bankName, bank_account_number: bankAccountNumber }, token);
+      showToast('Datos bancarios guardados');
+    } catch (err) {
+      showToast(err.message, true);
+    } finally {
+      setSavingBank(false);
+    }
+  }
 
   async function publishSpace() {
     if (!price) {
@@ -129,6 +174,8 @@ export default function DashboardPage() {
           <p>Publica tu tarifa, recibe solicitudes de marcas y decide con quién colaborar.</p>
         </div>
 
+        <div className="notice-banner">Los pagos se procesan cada lunes.</div>
+
         <div className="dash-grid">
           <div className="panel-stack">
             <div className="panel">
@@ -179,37 +226,89 @@ export default function DashboardPage() {
                 {publishing ? 'Publicando…' : 'Publicar espacio'}
               </button>
             </div>
+
+            <div className="panel">
+              <h3>Datos bancarios</h3>
+              <p className="sub">Los usamos para poder pagarte cuando cobres una colaboración.</p>
+              <div className="field">
+                <label>Nombre del banco</label>
+                <input type="text" value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Ej. Banco Industrial" />
+              </div>
+              <div className="field">
+                <label>Número de cuenta</label>
+                <input type="text" value={bankAccountNumber} onChange={(e) => setBankAccountNumber(e.target.value)} placeholder="Ej. 123456789" />
+              </div>
+              <button className="btn btn-primary btn-block" onClick={saveBankInfo} disabled={savingBank}>
+                {savingBank ? 'Guardando…' : 'Guardar datos bancarios'}
+              </button>
+            </div>
           </div>
 
-          <div className="panel">
-            <h3>Solicitudes recibidas</h3>
-            <p className="sub">Acepta o rechaza propuestas de marcas.</p>
-            {loadingReq && <div className="loading-state">Cargando solicitudes…</div>}
-            {!loadingReq && reqError && <div className="empty-state">{reqError}</div>}
-            {!loadingReq && !reqError && requests.length === 0 && (
-              <div className="empty-state">Aún no tienes solicitudes. En cuanto una marca te contacte, aparecerá aquí.</div>
-            )}
-            {!loadingReq && !reqError && requests.map((r) => (
-              <div className="request-item" key={r.id}>
-                <div>
-                  <div className="who">{r.brand_name} <span className="mono" style={{ color: 'var(--text-muted)', fontWeight: 400 }}>· Q{Number(r.offered_budget)}</span></div>
-                  <div className="msg">{r.message || 'Sin mensaje adicional.'}</div>
+          <div className="panel-stack">
+            <div className="panel">
+              <h3>Mis ganancias</h3>
+              <p className="sub">Lo que te deben y lo que ya te han pagado por tus colaboraciones.</p>
+              {loadingEarnings && <div className="loading-state">Cargando…</div>}
+              {!loadingEarnings && earningsError && <div className="empty-state">{earningsError}</div>}
+              {!loadingEarnings && !earningsError && earnings && (
+                <>
+                  <div className="earnings-summary">
+                    <div className="earnings-stat">
+                      <span className="earnings-stat-label">Pendiente de cobrar</span>
+                      <span className="earnings-stat-value">Q{Number(earnings.total_pendiente).toFixed(2)}</span>
+                    </div>
+                    <div className="earnings-stat">
+                      <span className="earnings-stat-label">Pagado históricamente</span>
+                      <span className="earnings-stat-value">Q{Number(earnings.total_pagado).toFixed(2)}</span>
+                    </div>
+                  </div>
+                  {earnings.transactions.length === 0 ? (
+                    <div className="empty-state">Aún no tienes transacciones.</div>
+                  ) : (
+                    earnings.transactions.map((t) => (
+                      <div className="request-item" key={t.id}>
+                        <div>
+                          <div className="who">Q{Number(t.influencer_amount).toFixed(2)}</div>
+                          <div className="msg">{new Date(t.created_at).toLocaleDateString('es-GT')}</div>
+                        </div>
+                        {payoutBadge(t.payout_status)}
+                      </div>
+                    ))
+                  )}
+                </>
+              )}
+            </div>
+
+            <div className="panel">
+              <h3>Solicitudes recibidas</h3>
+              <p className="sub">Acepta o rechaza propuestas de marcas.</p>
+              {loadingReq && <div className="loading-state">Cargando solicitudes…</div>}
+              {!loadingReq && reqError && <div className="empty-state">{reqError}</div>}
+              {!loadingReq && !reqError && requests.length === 0 && (
+                <div className="empty-state">Aún no tienes solicitudes. En cuanto una marca te contacte, aparecerá aquí.</div>
+              )}
+              {!loadingReq && !reqError && requests.map((r) => (
+                <div className="request-item" key={r.id}>
+                  <div>
+                    <div className="who">{r.brand_name} <span className="mono" style={{ color: 'var(--text-muted)', fontWeight: 400 }}>· Q{Number(r.offered_budget)}</span></div>
+                    <div className="msg">{r.message || 'Sin mensaje adicional.'}</div>
+                  </div>
+                  {r.status === 'pending' && (
+                    <div className="request-actions">
+                      <button className="icon-btn accept" title="Aceptar" onClick={() => respond(r.id, 'accepted')}>✓</button>
+                      <button className="icon-btn reject" title="Rechazar" onClick={() => respond(r.id, 'rejected')}>✕</button>
+                    </div>
+                  )}
+                  {r.status === 'accepted' && (
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <button className="btn btn-ghost" onClick={() => setChatRequest(r)}>Ver chat</button>
+                      {statusBadge(r.status, r.payment_status)}
+                    </div>
+                  )}
+                  {r.status !== 'pending' && r.status !== 'accepted' && statusBadge(r.status, r.payment_status)}
                 </div>
-                {r.status === 'pending' && (
-                  <div className="request-actions">
-                    <button className="icon-btn accept" title="Aceptar" onClick={() => respond(r.id, 'accepted')}>✓</button>
-                    <button className="icon-btn reject" title="Rechazar" onClick={() => respond(r.id, 'rejected')}>✕</button>
-                  </div>
-                )}
-                {r.status === 'accepted' && (
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <button className="btn btn-ghost" onClick={() => setChatRequest(r)}>Ver chat</button>
-                    {statusBadge(r.status, r.payment_status)}
-                  </div>
-                )}
-                {r.status !== 'pending' && r.status !== 'accepted' && statusBadge(r.status, r.payment_status)}
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>

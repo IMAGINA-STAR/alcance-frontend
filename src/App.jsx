@@ -6,13 +6,20 @@ import CatalogPage from './pages/CatalogPage';
 import DashboardPage from './pages/DashboardPage';
 import MyRequestsPage from './pages/MyRequestsPage';
 import PaymentResultPage from './pages/PaymentResultPage';
+import AdminPayoutsPage from './pages/AdminPayoutsPage';
+
+function homePathForRole(role) {
+  if (role === 'influencer') return '/dashboard';
+  if (role === 'admin') return '/admin/payouts';
+  return '/catalogo';
+}
 
 function ProtectedRoute({ children, allowedRole }) {
   const { user, loading } = useAuth();
   if (loading) return null;
   if (!user) return <Navigate to="/login" replace />;
   if (allowedRole && user.role !== allowedRole) {
-    return <Navigate to={user.role === 'influencer' ? '/dashboard' : '/catalogo'} replace />;
+    return <Navigate to={homePathForRole(user.role)} replace />;
   }
   return children;
 }
@@ -21,7 +28,7 @@ function HomeRedirect() {
   const { user, loading } = useAuth();
   if (loading) return null;
   if (!user) return <Navigate to="/login" replace />;
-  return <Navigate to={user.role === 'influencer' ? '/dashboard' : '/catalogo'} replace />;
+  return <Navigate to={homePathForRole(user.role)} replace />;
 }
 
 export default function App() {
@@ -69,6 +76,14 @@ export default function App() {
             element={
               <ProtectedRoute allowedRole="anunciante">
                 <PaymentResultPage outcome="cancelled" />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/payouts"
+            element={
+              <ProtectedRoute allowedRole="admin">
+                <AdminPayoutsPage />
               </ProtectedRoute>
             }
           />

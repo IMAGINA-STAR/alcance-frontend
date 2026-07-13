@@ -51,4 +51,12 @@ export const api = {
   getMessages: (requestId, token) => request(`/requests/${requestId}/messages`, { token }),
   sendMessage: (requestId, body, token) =>
     request(`/requests/${requestId}/messages`, { method: 'POST', body: { body }, token }),
+
+  getEarnings: (token) => request('/influencer/earnings', { token }),
+  updateBankInfo: (payload, token) =>
+    request('/influencer/bank-info', { method: 'PATCH', body: payload, token }),
+
+  getAdminPayouts: (token) => request('/admin/payouts', { token }),
+  markPayoutPaid: (transactionId, payload, token) =>
+    request(`/admin/payouts/${transactionId}/mark-paid`, { method: 'PATCH', body: payload, token }),
 };
