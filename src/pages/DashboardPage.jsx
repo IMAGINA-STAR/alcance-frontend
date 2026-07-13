@@ -54,6 +54,13 @@ export default function DashboardPage() {
 
   useEffect(() => { loadRequests(); }, [loadRequests]);
 
+  useEffect(() => {
+    if (!token) return;
+    api.getInfluencerProfile(token)
+      .then((profile) => setPhotoUrl(profile.photo_url || ''))
+      .catch(() => {});
+  }, [token]);
+
   async function publishSpace() {
     if (!price) {
       showToast('Ingresa un precio para publicar tu espacio', true);

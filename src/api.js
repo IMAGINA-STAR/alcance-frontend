@@ -33,6 +33,7 @@ export const api = {
   createSpace: (payload, token) => request('/spaces', { method: 'POST', body: payload, token }),
   updateSpace: (id, payload, token) => request(`/spaces/${id}`, { method: 'PATCH', body: payload, token }),
 
+  getInfluencerProfile: (token) => request('/influencer/profile', { token }),
   updateInfluencerProfile: (payload, token) =>
     request('/influencer/profile', { method: 'PATCH', body: payload, token }),
 
