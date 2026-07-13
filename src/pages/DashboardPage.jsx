@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Topbar from '../components/Topbar';
 import { Toast, useToast } from '../components/Toast';
 import ChatModal from '../components/ChatModal';
@@ -6,6 +6,10 @@ import { api } from '../api';
 import { useAuth } from '../context/AuthContext';
 
 const CONTENT_TYPES = ['Historia de Instagram (24h)', 'Post en feed', 'Reel', 'Combo (Historia + Post)'];
+
+const CLOUDINARY_CLOUD_NAME = 'ed5e2nea';
+const CLOUDINARY_UPLOAD_PRESET = 'alcance_fotos';
+const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
 
 function statusBadge(status, paymentStatus) {
   if (status === 'accepted') {
@@ -27,7 +31,8 @@ export default function DashboardPage() {
   const [publishing, setPublishing] = useState(false);
 
   const [photoUrl, setPhotoUrl] = useState('');
-  const [savingPhoto, setSavingPhoto] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const photoInputRef = useRef(null);
 
   const [requests, setRequests] = useState([]);
   const [loadingReq, setLoadingReq] = useState(true);
@@ -67,15 +72,34 @@ export default function DashboardPage() {
     }
   }
 
-  async function savePhoto() {
-    setSavingPhoto(true);
+  async function handlePhotoChange(e) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      showToast('Selecciona un archivo de imagen válido', true);
+      return;
+    }
+
+    setUploadingPhoto(true);
     try {
-      await api.updateInfluencerProfile({ photo_url: photoUrl.trim() || null }, token);
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+      const uploadRes = await fetch(CLOUDINARY_UPLOAD_URL, { method: 'POST', body: formData });
+      const uploadData = await uploadRes.json().catch(() => ({}));
+      if (!uploadRes.ok) {
+        throw new Error(uploadData.error?.message || 'No se pudo subir la imagen a Cloudinary.');
+      }
+
+      await api.updateInfluencerProfile({ photo_url: uploadData.secure_url }, token);
+      setPhotoUrl(uploadData.secure_url);
       showToast('Foto de perfil actualizada');
     } catch (err) {
       showToast(err.message, true);
     } finally {
-      setSavingPhoto(false);
+      setUploadingPhoto(false);
     }
   }
 
@@ -102,15 +126,28 @@ export default function DashboardPage() {
           <div className="panel-stack">
             <div className="panel">
               <h3>Foto de perfil</h3>
-              <p className="sub">Pega el enlace a una imagen tuya (por ejemplo, de Google Drive o Instagram).</p>
-              <div className="field">
-                <label>Enlace a tu foto de perfil</label>
-                <input type="url" value={photoUrl} onChange={(e) => setPhotoUrl(e.target.value)}
-                  placeholder="https://..." />
+              <p className="sub">Sube una foto tuya desde tu computadora o celular.</p>
+              <div className="profile-photo-row">
+                {photoUrl ? (
+                  <img className="avatar avatar-img profile-photo-preview" src={photoUrl} alt="Tu foto de perfil" />
+                ) : (
+                  <div className="avatar profile-photo-preview" style={{ background: 'var(--teal-700)' }}>?</div>
+                )}
+                <input
+                  ref={photoInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoChange}
+                  style={{ display: 'none' }}
+                />
+                <button
+                  className="btn btn-primary"
+                  onClick={() => photoInputRef.current?.click()}
+                  disabled={uploadingPhoto}
+                >
+                  {uploadingPhoto ? 'Subiendo…' : photoUrl ? 'Cambiar foto' : 'Subir foto'}
+                </button>
               </div>
-              <button className="btn btn-primary btn-block" onClick={savePhoto} disabled={savingPhoto}>
-                {savingPhoto ? 'Guardando…' : 'Guardar'}
-              </button>
             </div>
 
             <div className="panel">
