@@ -28,6 +28,18 @@ function SignalBars({ level }) {
   );
 }
 
+function RatingSummary({ avgRating, reviewCount }) {
+  const count = Number(reviewCount) || 0;
+  if (count === 0) {
+    return <span className="no-reviews">Sin reseñas aún</span>;
+  }
+  return (
+    <span className="rating-summary">
+      <span className="star on">★</span> {Number(avgRating).toFixed(1)} ({count} {count === 1 ? 'reseña' : 'reseñas'})
+    </span>
+  );
+}
+
 export default function CatalogPage() {
   const { token } = useAuth();
   const { toast, showToast } = useToast();
@@ -154,6 +166,7 @@ export default function CatalogPage() {
                       <div>
                         <div className="card-name">{s.influencer_name}</div>
                         <span className="card-tag">{s.category}</span>
+                        <div><RatingSummary avgRating={s.avg_rating} reviewCount={s.review_count} /></div>
                       </div>
                     </div>
                     <div className="stats-row">

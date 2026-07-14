@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import Topbar from '../components/Topbar';
 import { Toast, useToast } from '../components/Toast';
 import ChatModal from '../components/ChatModal';
+import ReviewControl from '../components/ReviewControl';
 import { api } from '../api';
 import { useAuth } from '../context/AuthContext';
 
@@ -303,6 +304,7 @@ export default function DashboardPage() {
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                       <button className="btn btn-ghost" onClick={() => setChatRequest(r)}>Ver chat</button>
                       {statusBadge(r.status, r.payment_status)}
+                      {r.payment_status === 'paid' && <ReviewControl requestId={r.id} />}
                     </div>
                   )}
                   {r.status !== 'pending' && r.status !== 'accepted' && statusBadge(r.status, r.payment_status)}

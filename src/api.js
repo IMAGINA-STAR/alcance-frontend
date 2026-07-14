@@ -52,6 +52,10 @@ export const api = {
   sendMessage: (requestId, body, token) =>
     request(`/requests/${requestId}/messages`, { method: 'POST', body: { body }, token }),
 
+  getReviews: (requestId, token) => request(`/requests/${requestId}/reviews`, { token }),
+  createReview: (requestId, payload, token) =>
+    request(`/requests/${requestId}/reviews`, { method: 'POST', body: payload, token }),
+
   getEarnings: (token) => request('/influencer/earnings', { token }),
   updateBankInfo: (payload, token) =>
     request('/influencer/bank-info', { method: 'PATCH', body: payload, token }),

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Topbar from '../components/Topbar';
 import { Toast, useToast } from '../components/Toast';
 import ChatModal from '../components/ChatModal';
+import ReviewControl from '../components/ReviewControl';
 import { api } from '../api';
 import { useAuth } from '../context/AuthContext';
 
@@ -71,7 +72,10 @@ export default function MyRequestsPage() {
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <button className="btn btn-ghost" onClick={() => setChatRequest(r)}>Ver chat</button>
                   {r.payment_status === 'paid' ? (
-                    <span className="badge-accepted">Pagado</span>
+                    <>
+                      <span className="badge-accepted">Pagado</span>
+                      <ReviewControl requestId={r.id} />
+                    </>
                   ) : (
                     <button className="btn btn-primary" onClick={() => payNow(r.id)} disabled={payingId === r.id}>
                       {payingId === r.id ? 'Abriendo pago…' : 'Pagar ahora'}
