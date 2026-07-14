@@ -1,14 +1,30 @@
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
-async function request(path, { method = 'GET', body, token } = {}) {
+async function request(path, { method = 'GET', body, token, timeoutMs } = {}) {
   const headers = { 'Content-Type': 'application/json' };
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : undefined,
-  });
+  const controller = timeoutMs ? new AbortController() : undefined;
+  const timer = timeoutMs ? setTimeout(() => controller.abort(), timeoutMs) : undefined;
+
+  let res;
+  try {
+    res = await fetch(`${BASE_URL}${path}`, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+      signal: controller?.signal,
+    });
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      const timeoutError = new Error('La solicitud tardó demasiado en responder.');
+      timeoutError.name = 'TimeoutError';
+      throw timeoutError;
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
 
   const data = await res.json().catch(() => ({}));
 
@@ -56,7 +72,7 @@ export const api = {
   createReview: (requestId, payload, token) =>
     request(`/requests/${requestId}/reviews`, { method: 'POST', body: payload, token }),
 
-  getEarnings: (token) => request('/influencer/earnings', { token }),
+  getEarnings: (token, opts) => request('/influencer/earnings', { token, ...opts }),
   updateBankInfo: (payload, token) =>
     request('/influencer/bank-info', { method: 'PATCH', body: payload, token }),
 

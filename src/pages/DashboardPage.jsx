@@ -50,6 +50,7 @@ export default function DashboardPage() {
 
   const [earnings, setEarnings] = useState(null);
   const [loadingEarnings, setLoadingEarnings] = useState(true);
+  const [earningsSlow, setEarningsSlow] = useState(false);
   const [earningsError, setEarningsError] = useState('');
 
   const [requests, setRequests] = useState([]);
@@ -85,14 +86,32 @@ export default function DashboardPage() {
 
   const loadEarnings = useCallback(async () => {
     setLoadingEarnings(true);
+    setEarningsSlow(false);
     setEarningsError('');
     try {
-      const data = await api.getEarnings(token);
+      const data = await api.getEarnings(token, { timeoutMs: 8000 });
       setEarnings(data);
     } catch (err) {
-      setEarningsError(err.message);
+      if (err.name !== 'TimeoutError') {
+        setEarningsError(err.message);
+        return;
+      }
+      // El backend gratuito se "duerme" tras inactividad; el primer request
+      // tras despertar puede tardar bastante, así que reintentamos con más margen.
+      setEarningsSlow(true);
+      try {
+        const data = await api.getEarnings(token, { timeoutMs: 25000 });
+        setEarnings(data);
+      } catch (err2) {
+        setEarningsError(
+          err2.name === 'TimeoutError'
+            ? 'El servidor está tardando más de lo normal. Intenta recargar la página en un momento.'
+            : err2.message
+        );
+      }
     } finally {
       setLoadingEarnings(false);
+      setEarningsSlow(false);
     }
   }, [token]);
 
@@ -192,7 +211,9 @@ export default function DashboardPage() {
           </h1>
           <p className="dash-hero-sub">
             {loadingEarnings
-              ? 'Cargando tu saldo…'
+              ? earningsSlow
+                ? 'El servidor está despertando, esto puede tardar unos segundos…'
+                : 'Cargando tu saldo…'
               : earningsError
               ? 'Te pagamos cada lunes.'
               : `Q${Number(earnings?.total_pendiente || 0).toFixed(2)} pendientes · te pagamos cada lunes`}
@@ -273,7 +294,11 @@ export default function DashboardPage() {
             <div className="panel">
               <h3>Mis ganancias</h3>
               <p className="sub">Lo que te deben y lo que ya te han pagado por tus colaboraciones.</p>
-              {loadingEarnings && <div className="loading-state">Cargando…</div>}
+              {loadingEarnings && (
+                <div className="loading-state">
+                  {earningsSlow ? 'El servidor está despertando, esto puede tardar unos segundos…' : 'Cargando…'}
+                </div>
+              )}
               {!loadingEarnings && earningsError && <div className="empty-state">{earningsError}</div>}
               {!loadingEarnings && !earningsError && earnings && (
                 <>
