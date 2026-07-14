@@ -287,6 +287,7 @@ a { color: inherit; }
 .badge-pending { font-size: 11px; font-weight: 600; color: #8A5A17; background: #FBEAD3; padding: 3px 9px; border-radius: 999px; }
 .badge-accepted { font-size: 11px; font-weight: 600; color: var(--quetzal); background: rgba(20,107,94,0.12); padding: 3px 9px; border-radius: 999px; }
 .badge-rejected { font-size: 11px; font-weight: 600; color: var(--danger-text); background: var(--danger-bg); padding: 3px 9px; border-radius: 999px; }
+.badge-unpaid { font-size: 11px; font-weight: 600; color: var(--text-muted); background: var(--paper-2); padding: 3px 9px; border-radius: 999px; }
 .request-actions { display: flex; gap: 6px; flex-shrink: 0; }
 .icon-btn {
   border: 1px solid var(--line); background: white; width: 30px; height: 30px; border-radius: 8px;

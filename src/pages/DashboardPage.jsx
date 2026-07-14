@@ -24,10 +24,10 @@ function statusBadge(status, paymentStatus) {
   return null;
 }
 
-function payoutBadge(payoutStatus) {
-  return payoutStatus === 'pagado'
-    ? <span className="badge-accepted">Pagado</span>
-    : <span className="badge-pending">Pendiente</span>;
+function payoutBadge(payoutStatus, transactionStatus) {
+  if (payoutStatus === 'pagado') return <span className="badge-accepted">Pagado</span>;
+  if (transactionStatus !== 'paid') return <span className="badge-unpaid">Sin pagar</span>;
+  return <span className="badge-pending">Pendiente</span>;
 }
 
 export default function DashboardPage() {
@@ -305,7 +305,7 @@ export default function DashboardPage() {
                           <div className="who">Q{Number(t.influencer_amount).toFixed(2)}</div>
                           <div className="msg">{new Date(t.created_at).toLocaleDateString('es-GT')}</div>
                         </div>
-                        {payoutBadge(t.payout_status)}
+                        {payoutBadge(t.payout_status, t.transaction_status)}
                       </div>
                     ))
                   )}
