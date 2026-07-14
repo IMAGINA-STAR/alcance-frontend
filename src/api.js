@@ -37,6 +37,8 @@ async function request(path, { method = 'GET', body, token, timeoutMs } = {}) {
 export const api = {
   register: (payload) => request('/auth/register', { method: 'POST', body: payload }),
   login: (payload) => request('/auth/login', { method: 'POST', body: payload }),
+  changePassword: (payload, token) =>
+    request('/auth/change-password', { method: 'PUT', body: payload, token }),
 
   getSpaces: (filters = {}) => {
     const params = new URLSearchParams();
