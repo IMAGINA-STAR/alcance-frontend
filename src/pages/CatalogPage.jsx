@@ -5,7 +5,7 @@ import { api } from '../api';
 import { useAuth } from '../context/AuthContext';
 
 const CATEGORIES = ['Moda', 'Comida', 'Fitness', 'Belleza', 'Lifestyle'];
-const COLORS = ['#FF6B4A', '#12302B', '#FFC857', '#1D4A42', '#D95F8A', '#3C7A6E'];
+const COLORS = ['#AF245B', '#146B5E', '#E2963A', '#221F2B', '#FF6552', '#7A1D45'];
 
 function initials(name) {
   return name.split(' ').map((n) => n[0]).slice(0, 2).join('');
@@ -151,18 +151,20 @@ export default function CatalogPage() {
                 {filtered.map((s) => (
                   <div className="card" key={s.id}>
                     <div className="card-top">
-                      {s.photo_url && !brokenPhotos.has(s.influencer_id) ? (
-                        <img
-                          className="avatar avatar-img"
-                          src={s.photo_url}
-                          alt={s.influencer_name}
-                          onError={() => setBrokenPhotos((prev) => new Set(prev).add(s.influencer_id))}
-                        />
-                      ) : (
-                        <div className="avatar" style={{ background: colorFor(s.influencer_id) }}>
-                          {initials(s.influencer_name)}
-                        </div>
-                      )}
+                      <div className="avatar-ring">
+                        {s.photo_url && !brokenPhotos.has(s.influencer_id) ? (
+                          <img
+                            className="avatar avatar-img"
+                            src={s.photo_url}
+                            alt={s.influencer_name}
+                            onError={() => setBrokenPhotos((prev) => new Set(prev).add(s.influencer_id))}
+                          />
+                        ) : (
+                          <div className="avatar" style={{ background: colorFor(s.influencer_id) }}>
+                            {initials(s.influencer_name)}
+                          </div>
+                        )}
+                      </div>
                       <div>
                         <div className="card-name">{s.influencer_name}</div>
                         <span className="card-tag">{s.category}</span>

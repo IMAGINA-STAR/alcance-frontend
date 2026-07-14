@@ -183,11 +183,13 @@ export default function DashboardPage() {
               <h3>Foto de perfil</h3>
               <p className="sub">Sube una foto tuya desde tu computadora o celular.</p>
               <div className="profile-photo-row">
-                {photoUrl ? (
-                  <img className="avatar avatar-img profile-photo-preview" src={photoUrl} alt="Tu foto de perfil" />
-                ) : (
-                  <div className="avatar profile-photo-preview" style={{ background: 'var(--teal-700)' }}>?</div>
-                )}
+                <div className="avatar-ring">
+                  {photoUrl ? (
+                    <img className="avatar avatar-img profile-photo-preview" src={photoUrl} alt="Tu foto de perfil" />
+                  ) : (
+                    <div className="avatar profile-photo-preview" style={{ background: 'var(--teal-700)' }}>?</div>
+                  )}
+                </div>
                 <input
                   ref={photoInputRef}
                   type="file"
