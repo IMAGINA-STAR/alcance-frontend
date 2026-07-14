@@ -6,6 +6,8 @@ import ReviewControl from '../components/ReviewControl';
 import { api } from '../api';
 import { useAuth } from '../context/AuthContext';
 
+// Force redeploy: Vercel tenía "Saltar despliegues" activo y no había desplegado b381c8e.
+
 const CONTENT_TYPES = ['Historia de Instagram (24h)', 'Post en feed', 'Reel', 'Combo (Historia + Post)'];
 
 const CLOUDINARY_CLOUD_NAME = 'ed5e2nea';
