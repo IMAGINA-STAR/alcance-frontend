@@ -29,8 +29,9 @@ function payoutBadge(payoutStatus) {
 }
 
 export default function DashboardPage() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const { toast, showToast } = useToast();
+  const firstName = user?.name?.split(' ')[0] || '';
 
   const [contentType, setContentType] = useState(CONTENT_TYPES[0]);
   const [price, setPrice] = useState('');
@@ -170,24 +171,43 @@ export default function DashboardPage() {
     <div>
       <Topbar />
       <div className="container">
-        <div className="view-header">
-          <h1>Tu espacio, a tu manera</h1>
-          <p>Publica tu tarifa, recibe solicitudes de marcas y decide con quién colaborar.</p>
+        <div className="dash-hero">
+          <div className="dash-hero-decor" aria-hidden="true"></div>
+          <div className="dash-hero-top">
+            <span className="dash-hero-brand">Alcance</span>
+            <div className="avatar-ring">
+              {photoUrl ? (
+                <img className="avatar avatar-img avatar-hero" src={photoUrl} alt="" />
+              ) : (
+                <div className="avatar avatar-hero" style={{ background: 'var(--magenta)' }}>
+                  {firstName ? firstName.charAt(0).toUpperCase() : '?'}
+                </div>
+              )}
+            </div>
+          </div>
+          <h1 className="dash-hero-greeting">
+            Hola {firstName || 'ahí'},<br />tu espacio te espera.
+          </h1>
+          <p className="dash-hero-sub">
+            {loadingEarnings
+              ? 'Cargando tu saldo…'
+              : earningsError
+              ? 'Te pagamos cada lunes.'
+              : `Q${Number(earnings?.total_pendiente || 0).toFixed(2)} pendientes · te pagamos cada lunes`}
+          </p>
         </div>
-
-        <div className="notice-banner">Los pagos se procesan cada lunes.</div>
 
         <div className="dash-grid">
           <div className="panel-stack">
-            <div className="panel">
+            <div className="panel panel-photo">
               <h3>Foto de perfil</h3>
               <p className="sub">Sube una foto tuya desde tu computadora o celular.</p>
               <div className="profile-photo-row">
                 <div className="avatar-ring">
                   {photoUrl ? (
-                    <img className="avatar avatar-img profile-photo-preview" src={photoUrl} alt="Tu foto de perfil" />
+                    <img className="avatar avatar-img avatar-lg" src={photoUrl} alt="Tu foto de perfil" />
                   ) : (
-                    <div className="avatar profile-photo-preview" style={{ background: 'var(--teal-700)' }}>?</div>
+                    <div className="avatar avatar-lg" style={{ background: 'var(--teal-700)' }}>?</div>
                   )}
                 </div>
                 <input
@@ -198,7 +218,7 @@ export default function DashboardPage() {
                   style={{ display: 'none' }}
                 />
                 <button
-                  className="btn btn-primary"
+                  className="btn-photo"
                   onClick={() => photoInputRef.current?.click()}
                   disabled={uploadingPhoto}
                 >
@@ -225,7 +245,7 @@ export default function DashboardPage() {
                 <textarea value={description} onChange={(e) => setDescription(e.target.value)}
                   placeholder="Ej. Contenido de moda y lifestyle, audiencia 18-30 años en Guatemala." />
               </div>
-              <button className="btn btn-primary btn-block" onClick={publishSpace} disabled={publishing}>
+              <button className="btn-publish" onClick={publishSpace} disabled={publishing}>
                 {publishing ? 'Publicando…' : 'Publicar espacio'}
               </button>
             </div>
@@ -256,13 +276,22 @@ export default function DashboardPage() {
               {!loadingEarnings && !earningsError && earnings && (
                 <>
                   <div className="earnings-summary">
-                    <div className="earnings-stat">
-                      <span className="earnings-stat-label">Pendiente de cobrar</span>
-                      <span className="earnings-stat-value">Q{Number(earnings.total_pendiente).toFixed(2)}</span>
+                    <div className="earnings-card earnings-card-paid">
+                      <span className="earnings-card-label">Pagado históricamente</span>
+                      <span className="earnings-card-value">Q{Number(earnings.total_pagado).toFixed(2)}</span>
+                      <div className="earnings-card-divider"></div>
+                      <span className="earnings-card-foot">✓ Ganancia confirmada</span>
                     </div>
-                    <div className="earnings-stat">
-                      <span className="earnings-stat-label">Pagado históricamente</span>
-                      <span className="earnings-stat-value">Q{Number(earnings.total_pagado).toFixed(2)}</span>
+                    <div className="earnings-card earnings-card-pending">
+                      <span className="earnings-card-label">Pendiente</span>
+                      <span className="earnings-card-value">Q{Number(earnings.total_pendiente).toFixed(2)}</span>
+                      <span className="earnings-card-foot">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="9" />
+                          <path d="M12 7v5l3 3" />
+                        </svg>
+                        Lunes
+                      </span>
                     </div>
                   </div>
                   {earnings.transactions.length === 0 ? (
