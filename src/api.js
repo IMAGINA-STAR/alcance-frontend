@@ -81,4 +81,5 @@ export const api = {
   getAdminPayouts: (token) => request('/admin/payouts', { token }),
   markPayoutPaid: (transactionId, payload, token) =>
     request(`/admin/payouts/${transactionId}/mark-paid`, { method: 'PATCH', body: payload, token }),
+  getAdminTransactions: (token) => request('/admin/transactions', { token }),
 };

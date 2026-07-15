@@ -342,6 +342,23 @@ a { color: inherit; }
 .earnings-card-pending { background: var(--cream); color: var(--brown-dark); }
 .earnings-card-pending .earnings-card-value { font-size: 26px; margin: 4px 0 8px; }
 
+/* ---------- ADMIN TRANSACTIONS SUMMARY ---------- */
+.admin-summary-grid { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+@media (max-width: 900px) { .admin-summary-grid { grid-template-columns: 1fr 1fr; } }
+.admin-summary-tile {
+  border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 4px;
+  background: var(--surface); border: 1px solid var(--line);
+}
+.admin-summary-label { font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; color: var(--text-muted); }
+.admin-summary-value { font-family: 'Fraunces', serif; font-style: italic; font-weight: 500; font-size: 24px; margin-top: 2px; }
+.admin-summary-tile-commission { background: var(--quetzal); color: white; border: none; }
+.admin-summary-tile-commission .admin-summary-label { color: rgba(255,255,255,0.85); }
+.admin-summary-tile-processed { background: var(--cream); color: var(--brown-dark); border: none; }
+.admin-summary-tile-count .admin-summary-value { font-size: 26px; }
+.admin-summary-tile-count-completed { border-left: 4px solid var(--quetzal); }
+.admin-summary-tile-count-pending { border-left: 4px solid #8A5A17; }
+.admin-summary-tile-count-unpaid { border-left: 4px solid var(--text-muted); }
+
 /* ---------- TABLE (admin) ---------- */
 .table-wrap { overflow-x: auto; }
 table.data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }

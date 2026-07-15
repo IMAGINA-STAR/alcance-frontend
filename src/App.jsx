@@ -8,6 +8,7 @@ import DashboardPage from './pages/DashboardPage';
 import MyRequestsPage from './pages/MyRequestsPage';
 import PaymentResultPage from './pages/PaymentResultPage';
 import AdminPayoutsPage from './pages/AdminPayoutsPage';
+import AdminTransactionsPage from './pages/AdminTransactionsPage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
@@ -90,6 +91,14 @@ export default function App() {
             element={
               <ProtectedRoute allowedRole="admin">
                 <AdminPayoutsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/transacciones"
+            element={
+              <ProtectedRoute allowedRole="admin">
+                <AdminTransactionsPage />
               </ProtectedRoute>
             }
           />

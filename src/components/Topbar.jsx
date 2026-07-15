@@ -25,6 +25,7 @@ export default function Topbar() {
           {user.role === 'admin' && (
             <>
               <Link to="/admin/payouts" style={{ fontSize: 13.5, color: 'var(--text-muted)' }}>Pagos pendientes</Link>
+              <Link to="/admin/transacciones" style={{ fontSize: 13.5, color: 'var(--text-muted)' }}>Transacciones</Link>
               <Link to="/admin/cambiar-contrasena" style={{ fontSize: 13.5, color: 'var(--text-muted)' }}>Cambiar contraseña</Link>
             </>
           )}
