@@ -82,4 +82,9 @@ export const api = {
   markPayoutPaid: (transactionId, payload, token) =>
     request(`/admin/payouts/${transactionId}/mark-paid`, { method: 'PATCH', body: payload, token }),
   getAdminTransactions: (token) => request('/admin/transactions', { token }),
+
+  getNotifications: (token) => request('/notifications', { token }),
+  getUnreadNotificationCount: (token) => request('/notifications/unread-count', { token }),
+  markNotificationRead: (id, token) => request(`/notifications/${id}/read`, { method: 'PATCH', token }),
+  markAllNotificationsRead: (token) => request('/notifications/read-all', { method: 'PATCH', token }),
 };

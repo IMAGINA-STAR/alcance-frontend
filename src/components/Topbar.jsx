@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import NotificationBell from './NotificationBell';
 
 export default function Topbar() {
   const { user, logout } = useAuth();
@@ -29,6 +30,7 @@ export default function Topbar() {
               <Link to="/admin/cambiar-contrasena" style={{ fontSize: 13.5, color: 'var(--text-muted)' }}>Cambiar contraseña</Link>
             </>
           )}
+          {user.role !== 'admin' && <NotificationBell />}
           <span className="role-pill">
             {user.role === 'influencer' ? 'Influencer' : user.role === 'admin' ? 'Admin' : 'Anunciante'}
           </span>
