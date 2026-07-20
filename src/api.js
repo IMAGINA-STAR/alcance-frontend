@@ -60,6 +60,8 @@ export const api = {
   getSentRequests: (token) => request('/requests/sent', { token }),
   respondToRequest: (id, status, token) =>
     request(`/requests/${id}/respond`, { method: 'PATCH', body: { status }, token }),
+  markDelivered: (id, payload, token) =>
+    request(`/requests/${id}/mark-delivered`, { method: 'POST', body: payload, token }),
 
   createCheckout: (requestId, token) =>
     request(`/requests/${requestId}/checkout`, { method: 'POST', token }),

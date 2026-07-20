@@ -71,19 +71,33 @@ export default function MyRequestsPage() {
               {r.status === 'accepted' && (
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <button className="btn btn-ghost" onClick={() => setChatRequest(r)}>Ver chat</button>
-                  {r.payment_status === 'paid' ? (
-                    <>
-                      <span className="badge-accepted">Pagado</span>
-                      <ReviewControl requestId={r.id} />
-                    </>
-                  ) : (
-                    <button className="btn btn-primary" onClick={() => payNow(r.id)} disabled={payingId === r.id}>
-                      {payingId === r.id ? 'Abriendo pago…' : 'Pagar ahora'}
-                    </button>
-                  )}
+                  <span className="badge-pending">Esperando entrega</span>
                 </div>
               )}
-              {r.status !== 'accepted' && statusBadge(r.status)}
+              {r.status === 'delivered' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end' }}>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <button className="btn btn-ghost" onClick={() => setChatRequest(r)}>Ver chat</button>
+                    {r.payment_status === 'paid' ? (
+                      <>
+                        <span className="badge-accepted">Pagado</span>
+                        <ReviewControl requestId={r.id} />
+                      </>
+                    ) : (
+                      <button className="btn btn-primary" onClick={() => payNow(r.id)} disabled={payingId === r.id}>
+                        {payingId === r.id ? 'Abriendo pago…' : 'Pagar ahora'}
+                      </button>
+                    )}
+                  </div>
+                  {r.evidence_url && (
+                    <a href={r.evidence_url} target="_blank" rel="noreferrer" className="mono" style={{ fontSize: 13 }}>
+                      Ver evidencia de entrega
+                    </a>
+                  )}
+                  {r.evidence_note && <div className="msg">{r.evidence_note}</div>}
+                </div>
+              )}
+              {r.status !== 'accepted' && r.status !== 'delivered' && statusBadge(r.status)}
             </div>
           ))}
         </div>

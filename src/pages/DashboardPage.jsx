@@ -15,10 +15,11 @@ const CLOUDINARY_UPLOAD_PRESET = 'alcance_fotos';
 const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
 
 function statusBadge(status, paymentStatus) {
-  if (status === 'accepted') {
+  if (status === 'accepted') return <span className="badge-accepted">Aceptada</span>;
+  if (status === 'delivered') {
     return paymentStatus === 'paid'
       ? <span className="badge-accepted">Pagada</span>
-      : <span className="badge-accepted">Aceptada</span>;
+      : <span className="badge-pending">Entregada</span>;
   }
   if (status === 'rejected') return <span className="badge-rejected">Rechazada</span>;
   return null;
@@ -57,6 +58,9 @@ export default function DashboardPage() {
   const [loadingReq, setLoadingReq] = useState(true);
   const [reqError, setReqError] = useState('');
   const [chatRequest, setChatRequest] = useState(null);
+
+  const [deliverForms, setDeliverForms] = useState({}); // { [requestId]: { url, note } }
+  const [deliveringId, setDeliveringId] = useState(null);
 
   const loadRequests = useCallback(async () => {
     setLoadingReq(true);
@@ -185,6 +189,33 @@ export default function DashboardPage() {
       loadRequests();
     } catch (err) {
       showToast(err.message, true);
+    }
+  }
+
+  function updateDeliverForm(id, field, value) {
+    setDeliverForms((prev) => ({ ...prev, [id]: { ...prev[id], [field]: value } }));
+  }
+
+  async function markDelivered(id) {
+    const form = deliverForms[id] || {};
+    if (!form.url?.trim()) {
+      showToast('Pega el link de la publicación', true);
+      return;
+    }
+    setDeliveringId(id);
+    try {
+      await api.markDelivered(id, { evidence_url: form.url.trim(), evidence_note: form.note?.trim() || undefined }, token);
+      showToast('Solicitud marcada como entregada');
+      setDeliverForms((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+      loadRequests();
+    } catch (err) {
+      showToast(err.message, true);
+    } finally {
+      setDeliveringId(null);
     }
   }
 
@@ -359,13 +390,40 @@ export default function DashboardPage() {
                     </div>
                   )}
                   {r.status === 'accepted' && (
+                    <div className="deliver-form" style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', maxWidth: 320 }}>
+                      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                        <button className="btn btn-ghost" onClick={() => setChatRequest(r)}>Ver chat</button>
+                        {statusBadge(r.status, r.payment_status)}
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="Link de la publicación"
+                        value={deliverForms[r.id]?.url || ''}
+                        onChange={(e) => updateDeliverForm(r.id, 'url', e.target.value)}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Nota (opcional)"
+                        value={deliverForms[r.id]?.note || ''}
+                        onChange={(e) => updateDeliverForm(r.id, 'note', e.target.value)}
+                      />
+                      <button
+                        className="btn btn-primary"
+                        onClick={() => markDelivered(r.id)}
+                        disabled={deliveringId === r.id}
+                      >
+                        {deliveringId === r.id ? 'Guardando…' : 'Marcar como entregado'}
+                      </button>
+                    </div>
+                  )}
+                  {r.status === 'delivered' && (
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                       <button className="btn btn-ghost" onClick={() => setChatRequest(r)}>Ver chat</button>
                       {statusBadge(r.status, r.payment_status)}
                       {r.payment_status === 'paid' && <ReviewControl requestId={r.id} />}
                     </div>
                   )}
-                  {r.status !== 'pending' && r.status !== 'accepted' && statusBadge(r.status, r.payment_status)}
+                  {r.status !== 'pending' && r.status !== 'accepted' && r.status !== 'delivered' && statusBadge(r.status, r.payment_status)}
                 </div>
               ))}
             </div>
