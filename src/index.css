@@ -314,6 +314,7 @@ a { color: inherit; }
 .badge-social-instagram { color: var(--magenta); background: rgba(175,36,91,0.12); }
 .badge-social-tiktok    { color: var(--ink); background: var(--paper-2); }
 .badge-social-youtube   { color: var(--red); background: var(--danger-bg); }
+.badge-social-facebook  { color: var(--quetzal); background: rgba(20,107,94,0.12); }
 
 /* ---------- CALIFICACIONES ---------- */
 .stars { font-size: 13px; letter-spacing: 1px; }

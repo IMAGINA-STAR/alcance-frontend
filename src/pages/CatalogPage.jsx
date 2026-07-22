@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 
 const CATEGORIES = ['Moda', 'Comida', 'Fitness', 'Belleza', 'Lifestyle'];
 const COLORS = ['#AF245B', '#146B5E', '#E2963A', '#221F2B', '#FF6552', '#7A1D45'];
-const SOCIAL_PLATFORM_LABELS = { instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube' };
+const SOCIAL_PLATFORM_LABELS = { instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube', facebook: 'Facebook' };
 
 function initials(name) {
   return name.split(' ').map((n) => n[0]).slice(0, 2).join('');

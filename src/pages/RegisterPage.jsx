@@ -4,8 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { api } from '../api';
 
 const CATEGORIES = ['Moda', 'Comida', 'Fitness', 'Belleza', 'Lifestyle'];
-const SOCIAL_PLATFORMS = ['instagram', 'tiktok', 'youtube'];
-const SOCIAL_PLATFORM_LABELS = { instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube' };
+const SOCIAL_PLATFORMS = ['instagram', 'tiktok', 'youtube', 'facebook'];
+const SOCIAL_PLATFORM_LABELS = { instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube', facebook: 'Facebook' };
 
 export default function RegisterPage() {
   const { register } = useAuth();

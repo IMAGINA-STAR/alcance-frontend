@@ -10,8 +10,8 @@ import { useAuth } from '../context/AuthContext';
 
 const CONTENT_TYPES = ['Historia de Instagram (24h)', 'Post en feed', 'Reel', 'Combo (Historia + Post)'];
 
-const SOCIAL_PLATFORMS = ['instagram', 'tiktok', 'youtube'];
-const SOCIAL_PLATFORM_LABELS = { instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube' };
+const SOCIAL_PLATFORMS = ['instagram', 'tiktok', 'youtube', 'facebook'];
+const SOCIAL_PLATFORM_LABELS = { instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube', facebook: 'Facebook' };
 
 const CLOUDINARY_CLOUD_NAME = 'ed5e2nea';
 const CLOUDINARY_UPLOAD_PRESET = 'alcance_fotos';
