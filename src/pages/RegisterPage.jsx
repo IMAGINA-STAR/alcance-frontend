@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { api } from '../api';
 
 const CATEGORIES = ['Moda', 'Comida', 'Fitness', 'Belleza', 'Lifestyle'];
+const SOCIAL_PLATFORMS = ['instagram', 'tiktok', 'youtube'];
+const SOCIAL_PLATFORM_LABELS = { instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube' };
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -19,7 +22,8 @@ export default function RegisterPage() {
   // campos específicos de influencer
   const [category, setCategory] = useState(CATEGORIES[0]);
   const [followers, setFollowers] = useState('');
-  const [instagram, setInstagram] = useState('');
+  const [platform, setPlatform] = useState('instagram');
+  const [handle, setHandle] = useState('');
 
   // campos específicos de anunciante
   const [brandName, setBrandName] = useState('');
@@ -31,10 +35,22 @@ export default function RegisterPage() {
     try {
       const profile =
         role === 'influencer'
-          ? { category, followers: Number(followers) || 0, instagram_handle: instagram }
+          ? { category, followers: Number(followers) || 0 }
           : { brand_name: brandName || name };
 
-      const user = await register({ name, email, password, role, profile });
+      const { user, token } = await register({ name, email, password, role, profile });
+
+      if (role === 'influencer' && handle.trim()) {
+        try {
+          await api.upsertSocialAccount(
+            { platform, handle: handle.trim(), followers_count: Number(followers) || 0 },
+            token
+          );
+        } catch {
+          // No bloquea el registro; puede agregarla después desde el dashboard.
+        }
+      }
+
       navigate(user.role === 'influencer' ? '/dashboard' : '/catalogo');
     } catch (err) {
       setError(err.message);
@@ -87,8 +103,14 @@ export default function RegisterPage() {
                 <input type="number" value={followers} onChange={(e) => setFollowers(e.target.value)} placeholder="Ej. 15000" />
               </div>
               <div className="field">
-                <label>Usuario de Instagram (opcional)</label>
-                <input value={instagram} onChange={(e) => setInstagram(e.target.value)} placeholder="@tuusuario" />
+                <label>Red social principal (opcional)</label>
+                <select value={platform} onChange={(e) => setPlatform(e.target.value)}>
+                  {SOCIAL_PLATFORMS.map((p) => <option key={p} value={p}>{SOCIAL_PLATFORM_LABELS[p]}</option>)}
+                </select>
+              </div>
+              <div className="field">
+                <label>Usuario / handle</label>
+                <input value={handle} onChange={(e) => setHandle(e.target.value)} placeholder="@tuusuario" />
               </div>
             </>
           ) : (

@@ -10,6 +10,9 @@ import { useAuth } from '../context/AuthContext';
 
 const CONTENT_TYPES = ['Historia de Instagram (24h)', 'Post en feed', 'Reel', 'Combo (Historia + Post)'];
 
+const SOCIAL_PLATFORMS = ['instagram', 'tiktok', 'youtube'];
+const SOCIAL_PLATFORM_LABELS = { instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube' };
+
 const CLOUDINARY_CLOUD_NAME = 'ed5e2nea';
 const CLOUDINARY_UPLOAD_PRESET = 'alcance_fotos';
 const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
@@ -49,6 +52,10 @@ export default function DashboardPage() {
   const [bankAccountNumber, setBankAccountNumber] = useState('');
   const [savingBank, setSavingBank] = useState(false);
 
+  const [socialAccounts, setSocialAccounts] = useState({}); // { [platform]: {id, handle, followers_count} }
+  const [socialForms, setSocialForms] = useState({});        // { [platform]: {handle, followers_count} }
+  const [savingSocial, setSavingSocial] = useState(null);    // platform en guardado/borrado, o null
+
   const [earnings, setEarnings] = useState(null);
   const [loadingEarnings, setLoadingEarnings] = useState(true);
   const [earningsSlow, setEarningsSlow] = useState(false);
@@ -84,6 +91,15 @@ export default function DashboardPage() {
         setPhotoUrl(profile.photo_url || '');
         setBankName(profile.bank_name || '');
         setBankAccountNumber(profile.bank_account_number || '');
+
+        const byPlatform = {};
+        (profile.social_accounts || []).forEach((a) => { byPlatform[a.platform] = a; });
+        setSocialAccounts(byPlatform);
+        setSocialForms(
+          Object.fromEntries(SOCIAL_PLATFORMS.map((p) => [
+            p, { handle: byPlatform[p]?.handle || '', followers_count: byPlatform[p]?.followers_count ?? '' },
+          ]))
+        );
       })
       .catch(() => {});
   }, [token]);
@@ -130,6 +146,47 @@ export default function DashboardPage() {
       showToast(err.message, true);
     } finally {
       setSavingBank(false);
+    }
+  }
+
+  function updateSocialForm(platform, field, value) {
+    setSocialForms((prev) => ({ ...prev, [platform]: { ...prev[platform], [field]: value } }));
+  }
+
+  async function saveSocialAccount(platform) {
+    const form = socialForms[platform] || {};
+    if (!form.handle?.trim()) {
+      showToast('Ingresa tu usuario para guardar esta red', true);
+      return;
+    }
+    setSavingSocial(platform);
+    try {
+      const saved = await api.upsertSocialAccount(
+        { platform, handle: form.handle.trim(), followers_count: Number(form.followers_count) || 0 },
+        token
+      );
+      setSocialAccounts((prev) => ({ ...prev, [platform]: saved }));
+      showToast(`${SOCIAL_PLATFORM_LABELS[platform]} guardado`);
+    } catch (err) {
+      showToast(err.message, true);
+    } finally {
+      setSavingSocial(null);
+    }
+  }
+
+  async function removeSocialAccount(platform) {
+    const account = socialAccounts[platform];
+    if (!account?.id) return;
+    setSavingSocial(platform);
+    try {
+      await api.deleteSocialAccount(account.id, token);
+      setSocialAccounts((prev) => { const next = { ...prev }; delete next[platform]; return next; });
+      setSocialForms((prev) => ({ ...prev, [platform]: { handle: '', followers_count: '' } }));
+      showToast(`${SOCIAL_PLATFORM_LABELS[platform]} eliminado`);
+    } catch (err) {
+      showToast(err.message, true);
+    } finally {
+      setSavingSocial(null);
     }
   }
 
@@ -279,6 +336,41 @@ export default function DashboardPage() {
                   {uploadingPhoto ? 'Subiendo…' : photoUrl ? 'Cambiar foto' : 'Subir foto'}
                 </button>
               </div>
+            </div>
+
+            <div className="panel">
+              <h3>Redes sociales</h3>
+              <p className="sub">Agrega tus redes para que las marcas vean dónde encontrarte.</p>
+              {SOCIAL_PLATFORMS.map((p) => (
+                <div className="social-row" key={p}>
+                  <span className={`badge-social badge-social-${p}`}>{SOCIAL_PLATFORM_LABELS[p]}</span>
+                  <input
+                    type="text"
+                    placeholder="@usuario"
+                    value={socialForms[p]?.handle || ''}
+                    onChange={(e) => updateSocialForm(p, 'handle', e.target.value)}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Seguidores"
+                    value={socialForms[p]?.followers_count ?? ''}
+                    onChange={(e) => updateSocialForm(p, 'followers_count', e.target.value)}
+                  />
+                  <button className="btn btn-primary" onClick={() => saveSocialAccount(p)} disabled={savingSocial === p}>
+                    {savingSocial === p ? '…' : socialAccounts[p] ? 'Actualizar' : 'Agregar'}
+                  </button>
+                  {socialAccounts[p] && (
+                    <button
+                      className="icon-btn reject"
+                      title="Eliminar"
+                      onClick={() => removeSocialAccount(p)}
+                      disabled={savingSocial === p}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              ))}
             </div>
 
             <div className="panel">

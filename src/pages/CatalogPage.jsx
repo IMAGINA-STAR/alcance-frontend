@@ -6,12 +6,19 @@ import { useAuth } from '../context/AuthContext';
 
 const CATEGORIES = ['Moda', 'Comida', 'Fitness', 'Belleza', 'Lifestyle'];
 const COLORS = ['#AF245B', '#146B5E', '#E2963A', '#221F2B', '#FF6552', '#7A1D45'];
+const SOCIAL_PLATFORM_LABELS = { instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube' };
 
 function initials(name) {
   return name.split(' ').map((n) => n[0]).slice(0, 2).join('');
 }
 function colorFor(id) {
   return COLORS[id % COLORS.length];
+}
+function formatFollowers(n) {
+  const num = Number(n) || 0;
+  if (num >= 1000000) return `${(num / 1000000).toFixed(1).replace(/\.0$/, '')}M`;
+  if (num >= 1000) return `${(num / 1000).toFixed(1).replace(/\.0$/, '')}K`;
+  return String(num);
 }
 function engagementLevel(rate) {
   if (!rate) return 1;
@@ -175,6 +182,15 @@ export default function CatalogPage() {
                       <span>Seguidores<br /><strong>{Number(s.followers).toLocaleString()}</strong></span>
                       <span style={{ textAlign: 'right' }}>Alcance<br /><SignalBars level={engagementLevel(s.engagement_rate)} /></span>
                     </div>
+                    {s.social_accounts?.length > 0 && (
+                      <div className="social-chips">
+                        {s.social_accounts.map((a) => (
+                          <span className={`badge-social badge-social-${a.platform}`} key={a.platform}>
+                            {SOCIAL_PLATFORM_LABELS[a.platform]} · {formatFollowers(a.followers_count)}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                     <div className="card-desc">{s.description}</div>
                     <div className="card-bottom">
                       <div className="price">Q{Number(s.price)}<span> / {s.content_type.toLowerCase()}</span></div>

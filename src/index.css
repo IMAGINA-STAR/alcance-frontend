@@ -205,6 +205,8 @@ a { color: inherit; }
 .signal span:nth-child(3) { height: 14px; }
 .signal span:nth-child(4) { height: 18px; }
 
+.social-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
 .card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.45; flex-grow: 1; }
 .card-bottom { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 12px; }
 .price { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 15px; color: var(--ink); }
@@ -295,6 +297,23 @@ a { color: inherit; }
 }
 .icon-btn.accept:hover { background: rgba(20,107,94,0.12); border-color: var(--quetzal); }
 .icon-btn.reject:hover { background: var(--danger-bg); border-color: var(--red); }
+
+/* ---------- REDES SOCIALES ---------- */
+.social-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.social-row input {
+  border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px;
+  font-family: 'Inter', sans-serif; font-size: 13px; color: var(--text); background: var(--paper);
+}
+.social-row input[type=text] { flex: 1; min-width: 100px; }
+.social-row input[type=number] { width: 100px; }
+
+.badge-social {
+  font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px;
+  min-width: 62px; text-align: center; flex-shrink: 0;
+}
+.badge-social-instagram { color: var(--magenta); background: rgba(175,36,91,0.12); }
+.badge-social-tiktok    { color: var(--ink); background: var(--paper-2); }
+.badge-social-youtube   { color: var(--red); background: var(--danger-bg); }
 
 /* ---------- CALIFICACIONES ---------- */
 .stars { font-size: 13px; letter-spacing: 1px; }

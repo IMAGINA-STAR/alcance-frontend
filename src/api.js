@@ -55,6 +55,14 @@ export const api = {
   updateInfluencerProfile: (payload, token) =>
     request('/influencer/profile', { method: 'PATCH', body: payload, token }),
 
+  getSocialAccounts: (token) => request('/influencer/social-accounts', { token }),
+  upsertSocialAccount: (payload, token) =>
+    request('/influencer/social-accounts', { method: 'POST', body: payload, token }),
+  updateSocialAccount: (id, payload, token) =>
+    request(`/influencer/social-accounts/${id}`, { method: 'PATCH', body: payload, token }),
+  deleteSocialAccount: (id, token) =>
+    request(`/influencer/social-accounts/${id}`, { method: 'DELETE', token }),
+
   sendRequest: (payload, token) => request('/requests', { method: 'POST', body: payload, token }),
   getReceivedRequests: (token) => request('/requests/received', { token }),
   getSentRequests: (token) => request('/requests/sent', { token }),
